@@ -33,3 +33,41 @@ read_gpx_strava <- function(filename) {
     trackpoint_data <- data.frame(Latitude = latitude, Longitude = longitude, Altitude = altitude)
     return(list(name = name, link = link, data = trackpoint_data))
 }
+
+
+utilsIcons <- iconList(
+    start = makeIcon("https://img.icons8.com/ios-glyphs/30/empty-flag.png", iconWidth = 20, iconHeight = 20),
+    end = makeIcon("https://img.icons8.com/ios-glyphs/30/finish-flag.png", iconWidth = 20, iconHeight = 20)
+)
+
+load_all_paths <- function() {
+    color_list <- brewer.pal(10, "Paired")
+    num_elements <- 100
+    recycled_colors <- rep(color_list, length.out = num_elements)
+
+    filenames <- get_files()
+    
+    for (i in 1:length(filenames)) {
+        filename <- filenames[[i]]
+        trackpoint_data <- read_gpx_strava(filename)
+        leafletProxy("map") %>%
+            addPolylines(
+                data = trackpoint_data$data,
+                lat = ~Latitude, lng = ~Longitude,
+                popup = paste0('<a href="#" onclick="Shiny.setInputValue(\'selected_location\', \'', trackpoint_data$name, '\', {priority: \'event\'});">', trackpoint_data$name, "</a>"),
+                color = recycled_colors[i],
+                opacity = 0.8, weight = 5
+            ) %>%
+            addMarkers(
+                data = trackpoint_data$data[1, ],
+                lat = ~Latitude, lng = ~Longitude,
+                icon = utilsIcons$start
+            ) %>%
+            addMarkers(
+                data = trackpoint_data$data[nrow(trackpoint_data$data), ],
+                lat = ~Latitude, lng = ~Longitude,
+                icon = utilsIcons$end
+            )
+    }
+    cat("Paths loaded\n")
+}

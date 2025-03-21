@@ -1,4 +1,5 @@
 library(shiny)
+library(shinyjs)
 library(bslib)
 library(ggplot2)
 library(leaflet)
@@ -7,8 +8,11 @@ library(leaflet.extras)
 ui <- page_sidebar(
     theme = bs_theme(version = 5),
     title = "Training Performance",
+    useShinyjs(), # Enable JavaScript interactions
+
     sidebar = sidebar(
         bg = "white",
+        width = 150,
         accordion(
             accordion_panel(
                 "Select data",
@@ -26,19 +30,8 @@ ui <- page_sidebar(
         )
     ),
     navset_tab(
-        nav_panel("Map", leafletOutput("map", width = "100%", height = 800))
-    ),
-    # accordion(
-    #     open = c("Map"),
-    #     accordion_panel(
-    #         "Map",
-    #         leafletOutput("map")
-    #     ),
-    #     accordion_panel(
-    #         "Speed",
-    #     ),
-    #     accordion_panel(
-    #         "Heart Rate",
-    #     )
-    # )
+        id = "tabs",
+        nav_panel("Map", leafletOutput("map", width = "100%", height = 800)),
+        nav_panel("Analysis", verbatimTextOutput("analysis_result"))
+    )
 )
